@@ -1,0 +1,17 @@
+/.venv/
+venv/
+env/
+.env
+/.pytest_cache/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.sqlite3
+data/local_tifs/
+.DS_Store
+.idea/
+.vscode/
+.mypy_cache/
+/.streamlit/secrets.toml
