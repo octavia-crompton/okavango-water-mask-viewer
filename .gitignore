@@ -15,3 +15,7 @@ data/local_tifs/
 .vscode/
 .mypy_cache/
 /.streamlit/secrets.toml
+# Service account key files — never commit these
+*-fd0ac6d442ad.json
+*service_account*.json
+*sa_key*.json
