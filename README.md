@@ -75,33 +75,46 @@ Edit `config.py` to customize:
 
 ## Deploy to Streamlit Cloud
 
-This project is ready for a quick public deployment on Streamlit Community Cloud. The GEE assets used by default in this repository are public, so no Earth Engine authentication is required for the running app.
+This project is ready for a quick public deployment on Streamlit Community Cloud.
 
-Steps:
+### 1. Create a GEE service account (required for headless deployment)
 
-1. Create a GitHub repository and push this project (make sure you do NOT push your local virtual environment or any secret files):
+Streamlit Cloud runs without any Google credentials, so you need a service account to authenticate with Earth Engine:
+
+1. Open the [GCP Console → IAM → Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) in the `ee-okavango` project.
+2. Click **Create Service Account** → give it a name (e.g. `okavango-streamlit`).
+3. Grant it the **Earth Engine Resource Viewer** role (`roles/earthengine.viewer`).
+4. Click the service account → **Keys** tab → **Add Key** → **JSON**. Download the JSON file.
+5. Register the service account with Earth Engine at [https://signup.earthengine.google.com/#!/service_accounts](https://signup.earthengine.google.com/#!/service_accounts) (needed for EE API access).
+
+### 2. Push to GitHub and deploy on Streamlit Cloud
 
 ```bash
-git init
-git add .
-git commit -m "Initial Okavango water mask viewer"
-git branch -M main
-git remote add origin git@github.com:<your-org-or-username>/okavango-water-mask-viewer.git
-git push -u origin main
+git push origin main
 ```
 
-2. Go to https://share.streamlit.io and sign in with GitHub.
-3. Click **New app**, choose the repository and branch (`main`), and set the main file to `app.py`.
-4. Streamlit will detect `requirements.txt` and install dependencies automatically. Deploy the app.
+1. Go to **https://share.streamlit.io** and sign in with GitHub.
+2. Click **New app**, choose `okavango-water-mask-viewer` → branch `main` → main file `app.py`.
+3. Under **Advanced settings → Secrets**, add the secret:
 
-Notes and tips:
+```toml
+gee_service_account_json = '''
+{ ... paste the full contents of your JSON key file here ... }
+'''
+```
 
-- Because the GEE assets in `config.py` are public, the app can read them without credentials. If you later point `GEE_ASSET_COLLECTION` at private assets, you'll need to configure server-side credentials (see the `utils/gee_utils.py` service-account pattern).  
-- The `.streamlit/config.toml` is included to provide a consistent theme and server settings on Streamlit Cloud.  
-- If you want a private app on Streamlit Cloud or need to store service-account JSON safely, use Streamlit's Secrets manager (paid plan may be required for team/private apps).
+4. Click **Deploy**.
+
+### 3. Test locally with the service account (optional)
+
+Copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml` and fill in your JSON key. The app will use it automatically on your next `streamlit run app.py`.
+
+Notes:
+- The `.streamlit/secrets.toml` file is git-ignored — never commit it.  
+- If you later make the assets public, the service account is still required because `ee.data.listAssets()` always requires authentication even for public folders.
+- The app falls back to `earthengine authenticate` credentials automatically when running locally without a secrets file.
 
 Troubleshooting:
-
-- If the app fails to start, check the Streamlit Cloud logs for missing packages or import errors. You can pin versions in `requirements.txt` if needed.
+- If the app fails to start, check the Streamlit Cloud logs for missing packages or import errors.
 - If you get blank maps, refresh the browser and check the browser console for CORS or tile loading errors.
 

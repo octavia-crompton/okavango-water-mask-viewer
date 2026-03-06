@@ -4,10 +4,17 @@ Utilities for working with Google Earth Engine water mask assets.
 Supports assets stored as individual images inside a GEE Folder
 (not only ImageCollections). Dates are derived from ``year`` / ``month``
 image properties when ``system:time_start`` is absent.
+
+Authentication priority (first one that succeeds wins):
+  1. Streamlit secrets  → ``st.secrets["gee_service_account_json"]``  (JSON string)
+  2. Environment variable → ``GEE_SERVICE_ACCOUNT_JSON``              (JSON string)
+  3. Default credentials  → earthengine credentials file / gcloud ADC  (local dev)
 """
 from __future__ import annotations
 
 import datetime as dt
+import json
+import os
 import re
 from typing import Optional
 
@@ -24,22 +31,56 @@ from config import (
 
 # ── Initialization ─────────────────────────────────────────────────────────────
 
+def _build_service_account_credentials(sa_json_str: str):
+    """Build ee-compatible credentials from a service-account JSON string."""
+    from google.oauth2 import service_account  # bundled with earthengine-api
+    sa_info = json.loads(sa_json_str)
+    scopes = [
+        "https://www.googleapis.com/auth/earthengine",
+        "https://www.googleapis.com/auth/cloud-platform",
+    ]
+    return service_account.Credentials.from_service_account_info(
+        sa_info, scopes=scopes
+    )
+
+
 def initialize_gee() -> bool:
     """
-    Initialize the Earth Engine API.
+    Initialize the Earth Engine API using the first available credential source.
     Returns True if successful, False otherwise.
     """
+    # ── 1. Streamlit secrets (Streamlit Cloud) ─────────────────────────────
+    try:
+        sa_json = st.secrets.get("gee_service_account_json")
+        if sa_json:
+            creds = _build_service_account_credentials(sa_json)
+            ee.Initialize(credentials=creds)
+            return True
+    except Exception:
+        pass
+
+    # ── 2. Environment variable (Docker / Render / Fly.io) ────────────────
+    sa_json_env = os.environ.get("GEE_SERVICE_ACCOUNT_JSON")
+    if sa_json_env:
+        try:
+            creds = _build_service_account_credentials(sa_json_env)
+            ee.Initialize(credentials=creds)
+            return True
+        except Exception:
+            pass
+
+    # ── 3. Default credentials (local dev: earthengine file or gcloud ADC) ─
     try:
         ee.Initialize()
         return True
-    except Exception:
-        try:
-            ee.Authenticate()
-            ee.Initialize()
-            return True
-        except Exception as exc:
-            st.warning(f"Could not initialize GEE: {exc}")
-            return False
+    except Exception as exc:
+        st.warning(
+            f"Could not initialize GEE: {exc}  \n\n"
+            "To fix this, either:  \n"
+            "- Run `earthengine authenticate` locally, or  \n"
+            "- Add a `gee_service_account_json` secret in Streamlit Cloud settings."
+        )
+        return False
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
