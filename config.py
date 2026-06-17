@@ -47,7 +47,8 @@ ADDWSE_DIFF_ASSET_ID = (
     "projects/ee-okavango/assets/water_masks/"
     "monthly_DSWE_Landsat_30m_v4/AdDSWE_mean_difference"
 )
-DIFF_BAND = "difference"
+# The asset's mean-difference band (the only band centered on zero, range ≈ -2.6…3.5)
+DIFF_BAND = "b1"
 DIFF_VIS_PARAMS = {
     "min": -2,
     "max": 2,
