@@ -41,3 +41,25 @@ WATER_VIS_PARAMS = {
 # Color for the water overlay on local TIFs
 WATER_COLOR = "#08519cCC"  # semi-transparent blue
 NO_DATA_VALUE = 255
+
+# ── AdDSWE mean difference raster (Figure 4) ──────────────────────────────────
+ADDWSE_DIFF_ASSET_ID = (
+    "projects/ee-okavango/assets/water_masks/"
+    "monthly_DSWE_Landsat_30m_v4/AdDSWE_mean_difference"
+)
+DIFF_BAND = "difference"
+DIFF_VIS_PARAMS = {
+    "min": -2,
+    "max": 2,
+    "palette": [
+        "#d73027",  # strongly negative (drier)
+        "#f46d43",
+        "#fdae61",
+        "#fee090",
+        "#ffffff",  # 0 – no change
+        "#e0f3f8",
+        "#abd9e9",
+        "#74add1",
+        "#4575b4",  # strongly positive (wetter)
+    ],
+}

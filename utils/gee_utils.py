@@ -26,6 +26,9 @@ from config import (
     GEE_IMAGES_SUBFOLDER,
     WATER_BAND,
     WATER_VIS_PARAMS,
+    ADDWSE_DIFF_ASSET_ID,
+    DIFF_BAND,
+    DIFF_VIS_PARAMS,
 )
 
 
@@ -186,6 +189,19 @@ def get_ee_tile_url(image: ee.Image, vis_params: Optional[dict] = None) -> str:
     # Mask zeros so they render as transparent
     band = band.updateMask(band.gt(0))
     map_id = band.getMapId(vp)
+    return map_id["tile_fetcher"].url_format
+
+
+@st.cache_data(ttl=3600)
+def get_diff_tile_url() -> str:
+    """
+    Get a tile URL for the AdDSWE mean difference raster (Figure 4).
+
+    The asset is a single static image; the 'difference' band is displayed
+    with a diverging red-white-blue palette (negative = drier, positive = wetter).
+    """
+    img = ee.Image(ADDWSE_DIFF_ASSET_ID).select(DIFF_BAND)
+    map_id = img.getMapId(DIFF_VIS_PARAMS)
     return map_id["tile_fetcher"].url_format
 
 

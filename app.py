@@ -314,6 +314,7 @@ elif data_source == "Google Earth Engine":
         list_gee_images,
         get_ee_image,
         get_ee_tile_url,
+        get_diff_tile_url,
         compute_gee_water_area_km2,
     )
 
@@ -321,6 +322,11 @@ elif data_source == "Google Earth Engine":
     col_id = st.sidebar.text_input(
         "GEE ImageCollection ID",
         value=GEE_ASSET_COLLECTION,
+    )
+
+    show_diff = st.sidebar.checkbox(
+        "Show AdDSWE mean difference (Fig. 4)",
+        value=False,
     )
 
     try:
@@ -368,8 +374,44 @@ elif data_source == "Google Earth Engine":
             attribution="Google Earth Engine",
         )
 
+        if show_diff:
+            with st.spinner("Loading AdDSWE mean difference layer…"):
+                diff_tile_url = get_diff_tile_url()
+            m.add_tile_layer(
+                url=diff_tile_url,
+                name="AdDSWE mean difference (Fig. 4)",
+                attribution="Google Earth Engine",
+            )
+
         folium.LayerControl().add_to(m)
         m.to_streamlit(height=650)
+
+        if show_diff:
+            st.markdown(
+                """
+                <div style="margin:4px 0 16px 0;padding:8px 12px;background:#f8f9fa;
+                            border-radius:6px;border:1px solid #dee2e6;">
+                  <p style="margin:0 0 6px 0;font-size:0.85rem;font-weight:600;color:#333;">
+                    AdDSWE Mean Difference (DSWE units)
+                  </p>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:0.78rem;min-width:2rem;text-align:right;">−2</span>
+                    <div style="flex:1;height:16px;border-radius:3px;
+                                background:linear-gradient(to right,#d73027,#f46d43,#fdae61,
+                                #fee090,#ffffff,#e0f3f8,#abd9e9,#74add1,#4575b4);
+                                border:1px solid #ccc;"></div>
+                    <span style="font-size:0.78rem;min-width:2rem;">+2</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;
+                              padding:2px 2.8rem 0 2.8rem;">
+                    <span style="font-size:0.73rem;color:#666;">← drier</span>
+                    <span style="font-size:0.73rem;color:#666;">no change</span>
+                    <span style="font-size:0.73rem;color:#666;">wetter →</span>
+                  </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
     # ── Split Comparison view ────────────────────────────────────────────────
     else:
@@ -414,8 +456,44 @@ elif data_source == "Google Earth Engine":
         m.add_tile_layer(url=tile_r, name=f"Right – {catalog[right_idx]['label']}",
                           attribution="GEE")
 
+        if show_diff:
+            with st.spinner("Loading AdDSWE mean difference layer…"):
+                diff_tile_url = get_diff_tile_url()
+            m.add_tile_layer(
+                url=diff_tile_url,
+                name="AdDSWE mean difference (Fig. 4)",
+                attribution="Google Earth Engine",
+            )
+
         folium.LayerControl().add_to(m)
         m.to_streamlit(height=650)
+
+        if show_diff:
+            st.markdown(
+                """
+                <div style="margin:4px 0 16px 0;padding:8px 12px;background:#f8f9fa;
+                            border-radius:6px;border:1px solid #dee2e6;">
+                  <p style="margin:0 0 6px 0;font-size:0.85rem;font-weight:600;color:#333;">
+                    AdDSWE Mean Difference (DSWE units)
+                  </p>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:0.78rem;min-width:2rem;text-align:right;">−2</span>
+                    <div style="flex:1;height:16px;border-radius:3px;
+                                background:linear-gradient(to right,#d73027,#f46d43,#fdae61,
+                                #fee090,#ffffff,#e0f3f8,#abd9e9,#74add1,#4575b4);
+                                border:1px solid #ccc;"></div>
+                    <span style="font-size:0.78rem;min-width:2rem;">+2</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;
+                              padding:2px 2.8rem 0 2.8rem;">
+                    <span style="font-size:0.73rem;color:#666;">← drier</span>
+                    <span style="font-size:0.73rem;color:#666;">no change</span>
+                    <span style="font-size:0.73rem;color:#666;">wetter →</span>
+                  </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
         # Dedicated split view
         st.subheader("Side-by-side swipe view")
