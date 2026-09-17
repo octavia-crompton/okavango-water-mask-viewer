@@ -2,7 +2,7 @@
 
 An interactive web application for exploring 40 years of surface water dynamics in the Okavango Delta, Botswana. Built with [Streamlit](https://streamlit.io) and [Google Earth Engine](https://earthengine.google.com).
 
-🌊 **[Launch the app →](https://octavia-crompton-okavango-water-mask-viewer.streamlit.app)**
+🌊 **[Launch the app →](https://okavango-water-mask-viewer.streamlit.app/)**
 
 ---
 
@@ -18,13 +18,13 @@ The extent of the delta's seasonal flooding varies dramatically from year to yea
 
 Surface water extents in this app are derived from the **Dynamic Surface Water Extent (DSWE)** algorithm, developed by the U.S. Geological Survey (USGS). DSWE applies a series of spectral index tests to Landsat imagery to classify each 30-meter pixel into one of five categories:
 
-| Class | Meaning |
-|---|---|
-| **1** | High-confidence water |
-| **2** | Moderate-confidence water |
-| **3** | Potential wetland / low-confidence water |
-| **4** | Low-confidence water / partial inundation |
-| **0** | Not water |
+| Class | Meaning | Map color |
+|---|---|---|
+| **1** | High-confidence water | `#bdd7e7` (lightest blue) |
+| **2** | Moderate-confidence water | `#6baed6` |
+| **3** | Potential wetland / low-confidence water | `#3182bd` |
+| **4** | Low-confidence water / partial inundation | `#08519c` (darkest blue) |
+| **0** | Not water | transparent (basemap shows through) |
 
 DSWE uses visible, near-infrared, and shortwave infrared bands to distinguish open water from partially vegetated or turbid surfaces, making it well-suited for dynamic floodplain environments like the Okavango where water and vegetation are interspersed. Monthly composites are generated from all available cloud-free Landsat observations (Landsat 4–9) at 30-meter resolution, spanning **1984 to 2025** (368 monthly scenes).
 
@@ -35,8 +35,7 @@ DSWE uses visible, near-infrared, and shortwave infrared bands to distinguish op
 - **Browse water masks by date** — step through 40 years of monthly DSWE maps using a time slider
 - **Compare two dates side-by-side** — use the split-map swipe view to visually compare flood extents across years or seasons
 - **Track water area over time** — view an automatically computed time series of total water area (km²) across all scenes
-- **Switch basemaps** — toggle between satellite imagery, terrain, and street maps for context
-- **Upload local GeoTIFFs** — load your own water masks alongside or instead of the GEE data
+- **Read the class legend** — every map view shows the DSWE class color ramp, with class 0 drawn transparent over an OpenStreetMap basemap
 
 ---
 

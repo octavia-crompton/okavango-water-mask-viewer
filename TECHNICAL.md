@@ -7,8 +7,8 @@ A Streamlit + leafmap web app for visualizing water masks over the Okavango Delt
 - **Time series slider** — browse water masks by date
 - **Side-by-side comparison** — swipe between two dates using a split map
 - **Area statistics** — automatic water area computation (km²) with time series chart
-- **Basemap toggle** — switch between satellite, terrain, OSM, and dark basemaps
-- **Dual data sources** — load masks from local GeoTIFFs or Google Earth Engine
+- **Basemap** — OpenStreetMap, with water mask class 0 rendered transparent so the basemap shows through
+- **Data source** — Google Earth Engine assets (the published GeoTIFFs are distributed via the Dryad repository instead)
 
 ## Quick Start
 
@@ -20,14 +20,10 @@ source .venv/bin/activate   # macOS/Linux
 # 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. (Optional) Authenticate with GEE
+# 3. Authenticate with GEE
 earthengine authenticate
 
-# 4. Add your water mask TIFs
-#    Place files in data/local_tifs/ with dates in the filename:
-#    e.g. water_mask_2023-01-15.tif, okavango_20230715.tif
-
-# 5. Run the app
+# 4. Run the app
 streamlit run app.py
 ```
 
@@ -41,19 +37,14 @@ Okavango-app/
 ├── .streamlit/
 │   └── config.toml         # Streamlit theme & server settings
 ├── data/
-│   └── local_tifs/         # Place your GeoTIFF water masks here
+│   └── local_tifs/         # Legacy scratch folder (not read by the app)
 └── utils/
     ├── __init__.py
-    ├── local_raster.py     # Local TIF loading, area computation
+    ├── local_raster.py     # Legacy local TIF helpers (no longer used by the app)
     └── gee_utils.py        # GEE initialization, tile URLs, area stats
 ```
 
 ## Data Format
-
-### Local GeoTIFFs
-- Single-band binary masks: `1` = water, `0` = land
-- Any CRS (area stats approximate for geographic CRS)
-- Filename should contain a date in `YYYY-MM-DD`, `YYYY_MM_DD`, or `YYYYMMDD` format
 
 ### Google Earth Engine
 - Set `GEE_ASSET_COLLECTION` in `config.py` (or via environment variable) to your ImageCollection path
@@ -70,8 +61,8 @@ Edit `config.py` to customize:
 | `DEFAULT_ZOOM` | Initial zoom level | `9` |
 | `GEE_ASSET_COLLECTION` | GEE ImageCollection path | `projects/your-project/assets/...` |
 | `WATER_BAND` | Band name in GEE images | `water` |
-| `WATER_VIS_PARAMS` | Color ramp for water display | Light→dark blue |
-| `NO_DATA_VALUE` | NoData pixel value in TIFs | `255` |
+| `WATER_VIS_PARAMS` | Color ramp for DSWE classes 1–4 | Light→dark blue (class 0 masked out) |
+| `NO_DATA_VALUE` | NoData pixel value (legacy local-raster helpers) | `255` |
 
 ## Deploy to Streamlit Cloud
 
@@ -118,3 +109,9 @@ Troubleshooting:
 - If the app fails to start, check the Streamlit Cloud logs for missing packages or import errors.
 - If you get blank maps, refresh the browser and check the browser console for CORS or tile loading errors.
 
+### TODO
+
+[ ] Fix terrain background
+[ ] Add option to download tifs
+[ ] Add CYGNSS, NISAR, other RS watermasks
+[ ] 

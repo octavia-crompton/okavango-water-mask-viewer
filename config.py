@@ -27,14 +27,16 @@ WATER_BAND = os.environ.get("WATER_BAND", "dswe")
 GEE_IMAGES_SUBFOLDER = os.environ.get("GEE_IMAGES_SUBFOLDER", "DSWE_Products")
 
 # ── Visualization ──────────────────────────────────────────────────────────────
+# AdDSWE classes 1–4, rendered light → dark (ColorBrewer Blues).
+# Class 0 (not water) is masked out in get_ee_tile_url() and renders transparent.
 WATER_VIS_PARAMS = {
     "min": 1,
     "max": 4,
     "palette": [
-        "#08519c",  # 1 – high-confidence water
-        "#3182bd",  # 2 – moderate-confidence water
-        "#9ecae1",  # 3 – low-confidence water
-        "#6baed6",  # 4 – wetland / partial water
+        "#bdd7e7",  # 1 – lightest
+        "#6baed6",  # 2
+        "#3182bd",  # 3
+        "#08519c",  # 4 – darkest
     ],
 }
 
